@@ -4,8 +4,9 @@ import LandingPage from './components/LandingPage'
 import StudentMarketplace from './components/StudentMarketplace'
 import EventsPortal from './components/EventsPortal'
 import EventDetail from './components/EventDetail'
+import Coach from './components/Coach'
 
-export type Page = 'landing' | 'dashboard' | 'marketplace' | 'events' | 'event-detail'
+export type Page = 'landing' | 'dashboard' | 'marketplace' | 'events' | 'event-detail' | 'coach'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing')
@@ -28,6 +29,10 @@ function App() {
 
   if (currentPage === 'event-detail') {
     return <EventDetail onBack={() => setCurrentPage('events')} />
+  }
+
+  if (currentPage === 'coach') {
+    return <Coach onBack={() => setCurrentPage('dashboard')} onNavigate={handleNavigate} />
   }
 
   return (
