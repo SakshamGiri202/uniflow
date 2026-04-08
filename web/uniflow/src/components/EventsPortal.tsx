@@ -90,6 +90,35 @@ export default function EventsPortal({ onNavigate }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  const mockEventsData: Record<string, any> = {
+    "14": {
+      title: "Hackathon 2.0",
+      time: "Starts in 3 days",
+      location: "📍 Main Campus | Hall A",
+      duration: "⏱ 48 Hours | 10:00 AM Onwards",
+      attendees: "👥 432 Students Registered",
+      gradient: "from-violet-500/60 via-orange-300/50 to-pink-500/40"
+    },
+    "3": {
+      title: "AI SEMINAR",
+      time: "Starts tomorrow",
+      location: "📍 CS Dept | Seminar Hall 1",
+      duration: "⏱ 2 Hours | 02:00 PM",
+      attendees: "👥 120 Students Expected",
+      gradient: "from-sky-500/60 via-indigo-400/50 to-blue-500/40"
+    },
+    "9": {
+      title: "JAZZ NIGHT",
+      time: "Next week",
+      location: "📍 Student Center | Open Air Theatre",
+      duration: "⏱ 4 Hours | 08:00 PM Onwards",
+      attendees: "👥 210 Students RSVP'd",
+      gradient: "from-purple-500/60 via-fuchsia-400/50 to-pink-500/40"
+    }
+  };
+
+  const activeEvent = mockEventsData[activeDay];
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
@@ -243,25 +272,55 @@ export default function EventsPortal({ onNavigate }: Props) {
           </div>
 
           <div className="col-span-12 flex flex-col gap-5 lg:col-span-4">
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-[#171B23]">
-              <div className="h-36 bg-gradient-to-br from-violet-500/60 via-orange-300/50 to-pink-500/40" />
-              <div className="space-y-4 p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-3xl font-bold">Hackathon 2.0</h4>
-                    <p className="text-sm text-orange-200">Starts in 3 days</p>
+            
+            {activeEvent ? (
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-[#171B23]">
+                <div className={`h-36 bg-gradient-to-br ${activeEvent.gradient}`} />
+                <div className="space-y-4 p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-3xl font-bold">{activeEvent.title}</h4>
+                      <p className="text-sm text-orange-200">{activeEvent.time}</p>
+                    </div>
+                    <button className="rounded-full bg-white/10 p-2 hover:bg-white/15 transition-colors">↗</button>
                   </div>
-                  <button className="rounded-full bg-white/10 p-2 hover:bg-white/15 transition-colors">↗</button>
+                  <div className="space-y-2 text-sm text-white/70">
+                    <p>{activeEvent.location}</p>
+                    <p>{activeEvent.duration}</p>
+                    <p>{activeEvent.attendees}</p>
+                  </div>
+                  <button className="w-full rounded-lg bg-sky-300 py-3 text-base font-black uppercase tracking-[0.12em] text-slate-900 transition-colors hover:bg-sky-200">
+                    Quick Register
+                  </button>
                 </div>
-                <div className="space-y-2 text-sm text-white/70">
-                  <p>📍 Main Campus | Hall A</p>
-                  <p>⏱ 48 Hours | 10:00 AM Onwards</p>
-                  <p>👥 432 Students Registered</p>
-                </div>
-                <button className="w-full rounded-lg bg-sky-300 py-3 text-base font-black uppercase tracking-[0.12em] text-slate-900 transition-colors hover:bg-sky-200">
-                  Quick Register
-                </button>
               </div>
+            ) : (
+              <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-[#171B23] p-5 text-center">
+                <svg className="w-10 h-10 text-white/20 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-white/50 font-semibold">No events to preview.</p>
+                <p className="mt-2 text-sm text-white/30 max-w-[200px]">Click on a highlighted day in the calendar to view its event details.</p>
+              </div>
+            )}
+
+            {/* Closing Soon Warning Card */}
+            <div className="rounded-xl border border-rose-500/30 bg-[#1A1116] p-5 overflow-hidden relative shadow-[0_10px_30px_rgba(225,29,72,0.1)]">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-3xl rounded-full translate-x-10 -translate-y-10 pointer-events-none" />
+              <div className="flex items-center gap-2 mb-3">
+                <span className="relative flex h-3 w-3 mt-0.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-400">Closing Soon</span>
+              </div>
+              <h5 className="text-xl font-bold text-white mb-1">Cyber Security Workshop</h5>
+              <p className="text-xs text-rose-200/80 font-medium mb-4">Registration explicitly closes in less than <span className="font-bold underline decoration-rose-500/50">24 hours</span>.</p>
+              <button 
+                onClick={() => alert('Quick registering for Cyber Security Workshop...')}
+                className="w-full rounded-lg bg-rose-500/20 py-2.5 text-xs font-bold text-rose-300 hover:bg-rose-500/30 transition-colors border border-rose-500/20">
+                Register Now →
+              </button>
             </div>
 
             <div className="rounded-xl border-l-4 border-orange-300 bg-[#1A1F27] p-5">
