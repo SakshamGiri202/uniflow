@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import EventsPortal from './EventsPortal.tsx'
+
 
 type StatPillProps = {
   title: string
@@ -79,12 +78,7 @@ function FeatureCard({
   )
 }
 
-export default function LandingPage() {
-  const [isSignedIn, setIsSignedIn] = useState(false)
-
-  if (isSignedIn) {
-    return <EventsPortal />
-  }
+export default function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
 
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
@@ -102,7 +96,7 @@ export default function LandingPage() {
         </div>
 
         <button
-          onClick={() => setIsSignedIn(true)}
+          onClick={onGetStarted}
           className="rounded-full bg-sky-300/90 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300"
         >
           Join Now
@@ -130,7 +124,7 @@ export default function LandingPage() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => setIsSignedIn(true)}
+              onClick={onGetStarted}
               className="rounded-full bg-sky-300/90 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300"
             >
               Get Started
@@ -231,7 +225,7 @@ export default function LandingPage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <button
-                onClick={() => setIsSignedIn(true)}
+                onClick={onGetStarted}
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 ring-1 ring-white/10 hover:bg-white/90"
               >
                 Sign Up Now
