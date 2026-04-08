@@ -1,7 +1,7 @@
-import LandingPage from './components/LandingPage'
+import StudentMarketplace from './components/StudentMarketplace.tsx'
 
 function App() {
-  return <LandingPage />
+  return <StudentMarketplace />
 }
 
 export default App
