@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 type Category = {
   name: string
   active?: boolean
@@ -125,12 +127,18 @@ export default function StudentMarketplace() {
           <div className="flex items-center gap-8">
             <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <nav className="hidden items-center gap-6 md:flex">
-              <button className="text-sm text-white/70 hover:text-white">Dashboard</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
+              <Link to="/dashboard" className="text-sm text-white/70 hover:text-white">
+                Dashboard
+              </Link>
+              <Link to="/marketplace" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
                 Marketplace
-              </button>
-              <button className="text-sm text-white/70 hover:text-white">Events</button>
-              <button className="text-sm text-white/70 hover:text-white">Verification</button>
+              </Link>
+              <Link to="/events" className="text-sm text-white/70 hover:text-white">
+                Events
+              </Link>
+              <Link to="/coach" className="text-sm text-white/70 hover:text-white">
+                Coach
+              </Link>
             </nav>
           </div>
 

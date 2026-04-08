@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 function Pill({
   label,
   active = false,
@@ -58,12 +60,18 @@ export default function EventsPortal() {
           <div className="flex items-center gap-10">
             <div className="text-3xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <div className="hidden items-center gap-7 md:flex">
-              <button className="text-sm text-white/65 hover:text-white">Dashboard</button>
-              <button className="text-sm text-white/65 hover:text-white">Marketplace</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
+              <Link to="/dashboard" className="text-sm text-white/65 hover:text-white">
+                Dashboard
+              </Link>
+              <Link to="/marketplace" className="text-sm text-white/65 hover:text-white">
+                Marketplace
+              </Link>
+              <Link to="/events" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
                 Events
-              </button>
-              <button className="text-sm text-white/65 hover:text-white">Verification</button>
+              </Link>
+              <Link to="/coach" className="text-sm text-white/65 hover:text-white">
+                Coach
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-4">
