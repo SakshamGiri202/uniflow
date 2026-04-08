@@ -80,6 +80,7 @@ export default function Coach() {
   const [venueFilter, setVenueFilter] = useState('All Venues')
   const [coachFilter, setCoachFilter] = useState('All Coaches')
   const [topicName, setTopicName] = useState('')
+  const [topicDescription, setTopicDescription] = useState('')
   const [coachName, setCoachName] = useState('')
   const [experience, setExperience] = useState('')
   const [time, setTime] = useState('')
@@ -237,6 +238,7 @@ export default function Coach() {
               <button
                 onClick={() => {
                   setTopicName('')
+                  setTopicDescription('')
                   setCoachName('')
                   setExperience('')
                   setTime('')
@@ -255,6 +257,19 @@ export default function Coach() {
                   value={topicName}
                   onChange={(e) => setTopicName(e.target.value)}
                   placeholder="e.g. Data Structures"
+                  className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
+                />
+              </label>
+
+              <label className="rounded-xl bg-white/5 p-3 md:col-span-2">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+                  Topic description
+                </p>
+                <textarea
+                  value={topicDescription}
+                  onChange={(e) => setTopicDescription(e.target.value)}
+                  placeholder="Briefly describe what students will learn in this coaching session."
+                  rows={3}
                   className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
                 />
               </label>
