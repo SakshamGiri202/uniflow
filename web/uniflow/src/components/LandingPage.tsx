@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import EventsPortal from './EventsPortal.tsx'
+
 type StatPillProps = {
   title: string
   description: string
@@ -77,6 +80,12 @@ function FeatureCard({
 }
 
 export default function LandingPage() {
+  const [isSignedIn, setIsSignedIn] = useState(false)
+
+  if (isSignedIn) {
+    return <EventsPortal />
+  }
+
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
       <div className="pointer-events-none fixed inset-0 -z-10">
@@ -92,7 +101,10 @@ export default function LandingPage() {
           <span className="text-sm font-semibold tracking-wide text-white/90">UniFlow</span>
         </div>
 
-        <button className="rounded-full bg-sky-300/90 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300">
+        <button
+          onClick={() => setIsSignedIn(true)}
+          className="rounded-full bg-sky-300/90 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300"
+        >
           Join Now
         </button>
       </header>
@@ -117,7 +129,10 @@ export default function LandingPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button className="rounded-full bg-sky-300/90 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300">
+            <button
+              onClick={() => setIsSignedIn(true)}
+              className="rounded-full bg-sky-300/90 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-sm shadow-sky-500/20 ring-1 ring-white/10 hover:bg-sky-300"
+            >
               Get Started
             </button>
             <button className="rounded-full bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/80 ring-1 ring-white/10 hover:bg-white/10">
@@ -215,7 +230,10 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <button className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 ring-1 ring-white/10 hover:bg-white/90">
+              <button
+                onClick={() => setIsSignedIn(true)}
+                className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 ring-1 ring-white/10 hover:bg-white/90"
+              >
                 Sign Up Now
               </button>
               <button className="rounded-full bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/80 ring-1 ring-white/10 hover:bg-white/10">
