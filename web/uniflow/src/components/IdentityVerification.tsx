@@ -1,3 +1,5 @@
+import TopNavActions from './TopNavActions'
+
 type VerificationStepProps = {
   step: string
   title: string
@@ -36,7 +38,7 @@ function CodeBox({ value }: { value: string }) {
   )
 }
 
-export default function IdentityVerification() {
+export default function IdentityVerification({ onNavigate }: { onNavigate?: (page: string) => void }) {
   return (
     <div className="min-h-dvh bg-[#06090F] text-white">
       <header className="border-b border-white/5 bg-[#0B1019]/90">
@@ -44,20 +46,16 @@ export default function IdentityVerification() {
           <div className="flex items-center gap-8">
             <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <nav className="hidden items-center gap-6 md:flex">
-              <button className="text-sm text-white/70 hover:text-white">Dashboard</button>
-              <button className="text-sm text-white/70 hover:text-white">Marketplace</button>
-              <button className="text-sm text-white/70 hover:text-white">Events</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
+              <button onClick={() => onNavigate?.('dashboard')} className="text-sm text-white/70 hover:text-white transition-colors">Dashboard</button>
+              <button onClick={() => onNavigate?.('marketplace')} className="text-sm text-white/70 hover:text-white transition-colors">Marketplace</button>
+              <button onClick={() => onNavigate?.('events')} className="text-sm text-white/70 hover:text-white transition-colors">Events</button>
+              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">
                 Verification
               </button>
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="rounded-full bg-white/5 p-2 text-white/75">🔔</button>
-            <button className="rounded-full bg-white/5 p-2 text-white/75">⚙</button>
-            <button className="rounded-full bg-cyan-200/90 p-2 text-slate-900">👤</button>
-          </div>
+          <TopNavActions />
         </div>
       </header>
 

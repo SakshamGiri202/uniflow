@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CreateEventModal from './CreateEventModal'
+import TopNavActions from './TopNavActions'
 
 function Pill({
   label,
@@ -168,13 +169,7 @@ export default function EventsPortal({ onNavigate }: Props) {
               <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">Events</button>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="text-white/70 hover:text-white transition-colors">🔔</button>
-            <button className="text-white/70 hover:text-white transition-colors">⚙</button>
-            <button className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-xs hover:bg-white/30 transition-colors">
-              👤
-            </button>
-          </div>
+          <TopNavActions />
         </div>
       </nav>
 
