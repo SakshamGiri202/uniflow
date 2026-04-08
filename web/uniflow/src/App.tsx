@@ -1,19 +1,12 @@
-<<<<<<< HEAD
-
 import Dashboard from './components/Dashboard'
+import LandingPage from './components/LandingPage'
 
 function App() {
   return (
     <>
-      <Dashboard />
+      <LandingPage />
     </>
   )
-=======
-import LandingPage from './components/LandingPage.tsx'
-
-function App() {
-  return <LandingPage />
->>>>>>> origin/dev-a
 }
 
 export default App
