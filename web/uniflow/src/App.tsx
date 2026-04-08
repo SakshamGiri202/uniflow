@@ -4,33 +4,15 @@ import LandingPage from './components/LandingPage'
 import StudentMarketplace from './components/StudentMarketplace'
 import EventsPortal from './components/EventsPortal'
 import EventDetail from './components/EventDetail'
-import ChatPage from './components/ChatPage'
+import Coach from './components/Coach'
 
-export type Page = 'landing' | 'dashboard' | 'marketplace' | 'events' | 'event-detail' | 'chat'
-
-type ChatParams = {
-  sellerName: string
-  productTitle: string
-}
+export type Page = 'landing' | 'dashboard' | 'marketplace' | 'events' | 'event-detail' | 'coach'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing')
-  const [chatParams, setChatParams] = useState<ChatParams | null>(null)
 
-  const handleNavigate = (page: string, params?: ChatParams) => {
+  const handleNavigate = (page: string) => {
     setCurrentPage(page as Page)
-    if (params) {
-      setChatParams(params)
-    }
-  }
-
-  const handleBack = () => {
-    setCurrentPage('marketplace')
-    setChatParams(null)
-  }
-
-  if (currentPage === 'chat' && chatParams) {
-    return <ChatPage sellerName={chatParams.sellerName} productTitle={chatParams.productTitle} onBack={handleBack} />
   }
 
   if (currentPage === 'dashboard') {
@@ -47,6 +29,10 @@ function App() {
 
   if (currentPage === 'event-detail') {
     return <EventDetail onBack={() => setCurrentPage('events')} />
+  }
+
+  if (currentPage === 'coach') {
+    return <Coach onNavigate={handleNavigate} />
   }
 
   return (

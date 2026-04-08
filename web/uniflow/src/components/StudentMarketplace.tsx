@@ -17,6 +17,7 @@ type ProductCardProps = {
   viewLayout?: 'grid' | 'list'
   onNavigate?: (page: string, params?: { sellerName: string; productTitle: string }) => void
   onSelectProduct?: (product: { title: string; description: string; price: string; seller: string; badge?: string; imageSrc?: string }) => void
+  onAction?: (product: { title: string; description: string; price: string; seller: string; badge?: string; imageSrc?: string }, action: string) => void
 }
 
 const categories = [
@@ -46,6 +47,7 @@ function ProductCard({
   viewLayout = 'grid',
   onNavigate,
   onSelectProduct,
+  onAction,
 }: ProductCardProps) {
   const previewTone =
     tone === 'teal'
@@ -93,7 +95,7 @@ function ProductCard({
             Details
           </button>
           <button 
-            onClick={() => alert(`Starting ${action} for ${title}`)}
+            onClick={() => onAction ? onAction({ title, description, price, seller, badge, imageSrc }, action) : alert(`Starting ${action} for ${title}`)}
             className="flex-1 sm:flex-none sm:px-6 rounded-lg bg-sky-300/90 px-3 py-2 text-xs xl:text-sm font-semibold text-slate-950 hover:bg-sky-300 transition-colors whitespace-nowrap shadow-sm shadow-sky-500/20">
             {action}
           </button>
@@ -198,6 +200,22 @@ export default function StudentMarketplace({ onNavigate }: Props) {
   const [priceRange, setPriceRange] = useState<[number, number]>([500, 5000]);
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  const handleProductAction = (product: any, actionType: string) => {
+    setSelectedProduct(product);
+    if (actionType === 'Buy' || actionType === 'Bid Now') {
+      setShowPaymentModal(true);
+      setShowDetailsModal(false);
+    } else {
+      setShowDetailsModal(true);
+    }
+  };
+
+  const handleSelectProduct = (product: any) => {
+    setSelectedProduct(product);
+    setShowDetailsModal(true);
+  };
 
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
@@ -286,7 +304,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
             <section className={viewLayout === 'grid' ? "grid gap-5 md:grid-cols-2 xl:grid-cols-3" : "flex flex-col gap-5"}>
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="Engineering Graphics Kit"
                 description="Complete set for Semester 1. Includes draftsman, A3 board, and sheets."
@@ -299,7 +318,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               />
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="Hero Cycle"
                 description="Hero Sprint Pro. Dual disc brakes, 21-speed gears, perfect for campus rides."
@@ -312,7 +332,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               />
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="TechRefresh Bundle"
                 description="Upgrade your setup with pre-loved campus electronics. Monitor, keyboard & mouse."
@@ -325,7 +346,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               />
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="iPad Air (M1) + Pencil"
                 description="4 Offers Pending... Barely used, pristine condition. Battery health 98%."
@@ -338,7 +360,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               />
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="Semester 4 IT Books"
                 description="Complete set of 6 books for IT syllabus."
@@ -350,7 +373,8 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               />
               <ProductCard
                 onNavigate={onNavigate}
-                onSelectProduct={setSelectedProduct}
+                onSelectProduct={handleSelectProduct}
+                onAction={handleProductAction}
                 viewLayout={viewLayout}
                 title="Lab Coat (Size M)"
                 description="Only used for Chemistry labs. Recently washed."
@@ -365,12 +389,12 @@ export default function StudentMarketplace({ onNavigate }: Props) {
         </div>
       </div>
 
-      {selectedProduct && (
+      {showDetailsModal && selectedProduct && !showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedProduct(null)} />
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowDetailsModal(false)} />
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0D1119] shadow-2xl">
             <button
-              onClick={() => setSelectedProduct(null)}
+              onClick={() => setShowDetailsModal(false)}
               className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 hover:bg-white/20 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
