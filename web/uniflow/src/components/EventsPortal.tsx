@@ -50,7 +50,11 @@ function CalendarCell({
   )
 }
 
-export default function EventsPortal() {
+interface Props {
+  onNavigate?: (page: string) => void
+}
+
+export default function EventsPortal({ onNavigate }: Props) {
   return (
     <div className="min-h-dvh bg-[#090C12] text-white">
       <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#0D1119]/90 backdrop-blur">
@@ -58,12 +62,9 @@ export default function EventsPortal() {
           <div className="flex items-center gap-10">
             <div className="text-3xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <div className="hidden items-center gap-7 md:flex">
-              <button className="text-sm text-white/65 hover:text-white">Dashboard</button>
-              <button className="text-sm text-white/65 hover:text-white">Marketplace</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
-                Events
-              </button>
-              <button className="text-sm text-white/65 hover:text-white">Verification</button>
+              <button onClick={() => onNavigate?.('dashboard')} className="text-sm text-white/65 hover:text-white">Dashboard</button>
+              <button onClick={() => onNavigate?.('marketplace')} className="text-sm text-white/65 hover:text-white">Marketplace</button>
+              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">Events</button>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -77,10 +78,10 @@ export default function EventsPortal() {
       </nav>
 
       <main className="mx-auto max-w-[1440px] space-y-10 px-6 py-8">
-        <section className="relative overflow-hidden rounded-xl border border-white/10">
-          <div className="h-[300px] bg-[radial-gradient(circle_at_75%_40%,rgba(251,146,60,0.45),transparent_28%),radial-gradient(circle_at_65%_45%,rgba(251,146,60,0.24),transparent_40%),linear-gradient(110deg,#0e131c_20%,#05070b_55%,#1e130b_100%)]" />
+        <section className="relative flex min-h-[350px] md:min-h-[400px] flex-col justify-end overflow-hidden rounded-xl border border-white/10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_40%,rgba(251,146,60,0.45),transparent_28%),radial-gradient(circle_at_65%_45%,rgba(251,146,60,0.24),transparent_40%),linear-gradient(110deg,#0e131c_20%,#05070b_55%,#1e130b_100%)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-          <div className="absolute bottom-0 left-0 p-8 md:p-10">
+          <div className="relative z-10 p-8 pt-20 md:p-10 md:pt-24">
             <div className="mb-3 flex items-center gap-3">
               <span className="rounded-full bg-fuchsia-600 px-3 py-1 text-xs font-bold uppercase">
                 Trending Now
@@ -97,10 +98,16 @@ export default function EventsPortal() {
               and massive rewards.
             </p>
             <div className="mt-6 flex gap-3">
-              <button className="rounded-lg bg-sky-300 px-6 py-3 font-bold text-slate-900">
+              <button
+                onClick={() => onNavigate?.('event-detail')}
+                className="rounded-lg bg-sky-300 px-6 py-3 font-bold text-slate-900"
+              >
                 Secure My Slot
               </button>
-              <button className="rounded-lg bg-white/10 px-6 py-3 font-bold text-white">
+              <button
+                onClick={() => onNavigate?.('event-detail')}
+                className="rounded-lg bg-white/10 px-6 py-3 font-bold text-white"
+              >
                 View Details
               </button>
             </div>

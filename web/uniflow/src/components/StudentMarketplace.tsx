@@ -85,11 +85,10 @@ function CategoryPanel() {
           {categories.map((category) => (
             <li key={category.name}>
               <button
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
-                  category.active
-                    ? 'bg-sky-400/15 text-sky-300'
-                    : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${category.active
+                  ? 'bg-sky-400/15 text-sky-300'
+                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  }`}
               >
                 {category.name}
                 <span className="text-white/35">›</span>
@@ -124,7 +123,11 @@ function CategoryPanel() {
   )
 }
 
-export default function StudentMarketplace() {
+interface Props {
+  onNavigate?: (page: string) => void;
+}
+
+export default function StudentMarketplace({ onNavigate }: Props) {
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
       <div className="mx-auto max-w-[1400px] px-6 py-5">
@@ -132,13 +135,22 @@ export default function StudentMarketplace() {
           <div className="flex items-center gap-8">
             <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <nav className="hidden items-center gap-6 md:flex relative">
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Dashboard</button>
-              <button className="relative text-sm font-semibold text-sky-300 transition-colors">
+              <button
+                onClick={() => onNavigate?.('dashboard')}
+                className="text-sm text-white/70 hover:text-white transition-colors"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => onNavigate?.('marketplace')}
+                className="relative text-sm font-semibold text-sky-300 transition-colors">
                 Marketplace
                 <div className="absolute -bottom-[23px] left-0 h-[2px] w-full bg-sky-300" />
               </button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Events</button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Verification</button>
+              <button
+                onClick={() => onNavigate?.('events')}
+                className="text-sm text-white/70 hover:text-white transition-colors">Events</button>
+
             </nav>
           </div>
 
@@ -148,15 +160,15 @@ export default function StudentMarketplace() {
               placeholder="Search Marketplace..."
             />
             <button className="rounded-full bg-white/5 hover:bg-white/10 transition-colors p-2 text-white/75 flex items-center justify-center h-9 w-9">
-               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-               </svg>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
             </button>
             <button className="rounded-full bg-white/5 hover:bg-white/10 transition-colors p-2 text-white/75 flex items-center justify-center h-9 w-9">
-               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-               </svg>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </button>
             <div className="h-9 w-9 overflow-hidden rounded-full border border-white/10 shrink-0 ml-1">
               <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80" alt="Avatar" className="w-full h-full object-cover" />
@@ -176,12 +188,12 @@ export default function StudentMarketplace() {
               <div className="flex items-center gap-2 text-white/60">
                 <button className="rounded-lg bg-white/10 px-3 py-2 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                     <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/>
+                    <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" />
                   </svg>
                 </button>
                 <button className="rounded-lg bg-white/5 px-3 py-2 flex items-center justify-center hover:bg-white/10 transition-colors">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                     <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+                    <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
                   </svg>
                 </button>
               </div>
@@ -249,8 +261,8 @@ export default function StudentMarketplace() {
 
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#0E121B] shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-col justify-between">
                 <div className="relative h-44 w-full">
-                   <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&q=80" alt="Books" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80" />
-                   <div className="absolute inset-0 bg-gradient-to-br from-sky-500/35 to-violet-500/20 -z-10" />
+                  <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&q=80" alt="Books" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-sky-500/35 to-violet-500/20 -z-10" />
                 </div>
                 <div className="p-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -266,8 +278,8 @@ export default function StudentMarketplace() {
 
               <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0E121B] shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-col justify-between">
                 <div className="relative h-44 w-full">
-                   <img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=500&q=80" alt="Lab Coat" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80" />
-                   <div className="absolute inset-0 bg-gradient-to-br from-teal-300/60 to-sky-500/35 -z-10" />
+                  <img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=500&q=80" alt="Lab Coat" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-teal-300/60 to-sky-500/35 -z-10" />
                 </div>
                 <div className="p-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">

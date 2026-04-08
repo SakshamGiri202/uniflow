@@ -1,17 +1,38 @@
 import { useState } from 'react'
 import Dashboard from './components/Dashboard'
 import LandingPage from './components/LandingPage'
+import StudentMarketplace from './components/StudentMarketplace'
+import EventsPortal from './components/EventsPortal'
+import EventDetail from './components/EventDetail'
+
+export type Page = 'landing' | 'dashboard' | 'marketplace' | 'events' | 'event-detail'
 
 function App() {
-  const [showDashboard, setShowDashboard] = useState(false)
+  const [currentPage, setCurrentPage] = useState<Page>('landing')
 
-  if (showDashboard) {
-    return <Dashboard />
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page as Page)
+  }
+
+  if (currentPage === 'dashboard') {
+    return <Dashboard onNavigate={handleNavigate} />
+  }
+
+  if (currentPage === 'marketplace') {
+    return <StudentMarketplace onNavigate={handleNavigate} />
+  }
+
+  if (currentPage === 'events') {
+    return <EventsPortal onNavigate={handleNavigate} />
+  }
+
+  if (currentPage === 'event-detail') {
+    return <EventDetail onBack={() => setCurrentPage('events')} />
   }
 
   return (
     <>
-      <LandingPage onGetStarted={() => setShowDashboard(true)} />
+      <LandingPage onGetStarted={() => setCurrentPage('dashboard')} />
     </>
   )
 }

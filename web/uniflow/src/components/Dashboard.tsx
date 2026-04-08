@@ -6,7 +6,11 @@ import MentorshipSessions from './cards/MentorshipSessions';
 import TrendingMarketplace from './cards/TrendingMarketplace';
 import ActivityFeed from './cards/ActivityFeed';
 
-const Dashboard: React.FC = () => {
+interface Props {
+  onNavigate?: (page: string) => void;
+}
+
+const Dashboard: React.FC<Props> = ({ onNavigate }) => {
   const userName = 'Arnav';
 
   return (
@@ -17,16 +21,6 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className="text-xl font-bold tracking-wide italic text-white/90">UniFlow</span>
           </div>
-          
-          <nav className="flex gap-6 text-sm font-medium text-white/50">
-            <a href="#" className="text-sky-400 relative">
-              Dashboard
-              <div className="absolute -bottom-[21px] left-0 h-0.5 w-full bg-sky-400"></div>
-            </a>
-            <a href="#" className="hover:text-white">Marketplace</a>
-            <a href="#" className="hover:text-white">Events</a>
-            <a href="#" className="hover:text-white">Verification</a>
-          </nav>
         </div>
 
         <div className="flex items-center gap-5 text-white/50">
@@ -49,7 +43,7 @@ const Dashboard: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <Sidebar />
+        <Sidebar onNavigate={onNavigate} />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-8 relative">
