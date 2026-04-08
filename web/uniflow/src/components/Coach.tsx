@@ -41,7 +41,16 @@ const sessions: SessionCardProps[] = [
   },
 ]
 
-function SessionCard({ tag, title, mentor, role, description, schedule }: SessionCardProps) {
+function SessionCard({
+  tag,
+  title,
+  mentor,
+  role,
+  description,
+  schedule,
+  isApplied = false,
+  onApply,
+}: SessionCardProps & { isApplied?: boolean; onApply?: () => void }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-[#121821]/85 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.35)]">
       <div className="mb-4 flex items-center justify-between">
@@ -66,8 +75,16 @@ function SessionCard({ tag, title, mentor, role, description, schedule }: Sessio
         <p className="mt-2 text-xl font-semibold text-white/90">{schedule}</p>
       </div>
 
-      <button className="mt-5 w-full rounded-xl bg-white/10 py-3 text-lg font-semibold text-white/90 hover:bg-white/15">
-        Apply Now
+      <button
+        onClick={onApply}
+        disabled={isApplied}
+        className={`mt-5 w-full rounded-xl py-3 text-lg font-semibold transition ${
+          isApplied
+            ? 'cursor-default bg-emerald-500/25 text-emerald-200'
+            : 'bg-white/10 text-white/90 hover:bg-white/15'
+        }`}
+      >
+        {isApplied ? 'Applied' : 'Apply Now'}
       </button>
     </article>
   )
@@ -85,6 +102,7 @@ export default function Coach() {
   const [experience, setExperience] = useState('')
   const [time, setTime] = useState('')
   const [venue, setVenue] = useState('')
+  const [appliedSessionTitles, setAppliedSessionTitles] = useState<string[]>([])
 
   const topics = useMemo(() => ['All Topics', ...new Set(sessions.map((s) => s.tag))], [])
   const venues = useMemo(() => ['All Venues', ...new Set(sessions.map((s) => s.venue))], [])
@@ -313,6 +331,15 @@ export default function Coach() {
                   className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
                 />
               </label>
+
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-gradient-to-r from-sky-300 to-cyan-400 py-3 text-base font-semibold text-slate-950 shadow-[0_10px_24px_rgba(56,189,248,0.25)] hover:brightness-105"
+                >
+                  Submit
+                </button>
+              </div>
             </form>
           </section>
         ) : null}
@@ -330,7 +357,16 @@ export default function Coach() {
 
           <div className="grid gap-4 xl:grid-cols-3">
             {filteredSessions.map((session) => (
-              <SessionCard key={session.title} {...session} />
+              <SessionCard
+                key={session.title}
+                {...session}
+                isApplied={appliedSessionTitles.includes(session.title)}
+                onApply={() =>
+                  setAppliedSessionTitles((prev) =>
+                    prev.includes(session.title) ? prev : [...prev, session.title]
+                  )
+                }
+              />
             ))}
           </div>
         </section>
