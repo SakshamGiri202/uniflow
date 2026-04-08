@@ -1,15 +1,21 @@
+import { useState } from 'react'
+import CreateEventModal from './CreateEventModal'
+
 function Pill({
   label,
   active = false,
   icon,
+  onClick,
 }: {
   label: string
   active?: boolean
   icon: string
+  onClick?: () => void
 }) {
   return (
     <button
-      className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition ${
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${
         active
           ? 'bg-fuchsia-600 text-white'
           : 'bg-white/10 text-white/70 hover:bg-white/15 hover:text-white'
@@ -26,21 +32,37 @@ function CalendarCell({
   tag,
   tone = 'sky',
   muted = false,
+  isActive = false,
+  onClick,
 }: {
   day: string
   tag?: string
   tone?: 'sky' | 'purple'
   muted?: boolean
+  isActive?: boolean
+  onClick?: () => void
 }) {
+  // If active, give it a bright primary look depending on tag type, else defaults.
   return (
-    <div className={`min-h-[110px] bg-[#161A20] p-3 text-xs ${muted ? 'opacity-35' : ''}`}>
-      <div>{day}</div>
+    <div 
+      onClick={onClick}
+      className={`min-h-[110px] p-3 text-xs cursor-pointer transition-colors duration-200 ${
+        isActive 
+          ? 'bg-[#1D2530] ring-2 ring-sky-300/70 ring-inset shadow-lg shadow-sky-500/10 scale-[1.02] transform z-10' 
+          : 'bg-[#161A20] hover:bg-[#1C212A]'
+      } ${muted && !isActive ? 'opacity-35 hover:opacity-50' : ''}`}
+    >
+      <div className={isActive ? 'font-bold text-sky-200' : ''}>{day}</div>
       {tag ? (
         <div
-          className={`mt-2 rounded-md border-l-2 p-2 text-[10px] font-bold ${
-            tone === 'purple'
-              ? 'border-violet-400 bg-violet-400/20 text-violet-200'
-              : 'border-sky-300 bg-sky-300/20 text-sky-200'
+          className={`mt-2 rounded-md p-2 text-[10px] font-bold ${
+            isActive
+              ? tone === 'purple' 
+                  ? 'bg-violet-400 text-slate-900' 
+                  : 'bg-sky-300 text-slate-900 border-none'
+              : tone === 'purple'
+                ? 'border-l-2 border-violet-400 bg-violet-400/20 text-violet-200'
+                : 'border-l-2 border-sky-300 bg-sky-300/20 text-sky-200'
           }`}
         >
           {tag}
@@ -54,7 +76,57 @@ interface Props {
   onNavigate?: (page: string) => void
 }
 
+const CATEGORIES = [
+  { label: 'Tech & Innovation', icon: '⚡' },
+  { label: 'Arts & Culture', icon: '🎨' },
+  { label: 'Sports', icon: '🏋️' },
+  { label: 'Social Mixer', icon: '🍸' },
+  { label: 'Workshop', icon: '🎓' },
+];
+
 export default function EventsPortal({ onNavigate }: Props) {
+  const [activeCategory, setActiveCategory] = useState("Tech & Innovation");
+  const [activeDay, setActiveDay] = useState("14");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const changeMonth = (offset: number) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(month + offset);
+    setCurrentDate(newDate);
+  };
+
+  const monthName = currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthStrShort = currentDate.toLocaleString('en-US', { month: 'short' });
+
+  // Generate calendar grid (42 cells: 6 weeks x 7 days representing Mon-Sun)
+  const calendarGrid = [];
+  const firstDay = new Date(year, month, 1).getDay();
+  const startDayOffset = (firstDay + 6) % 7; // Monday = 0, Sunday = 6
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  for (let i = startDayOffset - 1; i >= 0; i--) {
+    calendarGrid.push({ day: (daysInPrevMonth - i).toString(), muted: true });
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    let tag = undefined;
+    let tone = undefined;
+    if (i === 3) tag = 'AI SEMINAR';
+    if (i === 9) { tag = 'JAZZ NIGHT'; tone = 'purple'; }
+    if (i === 14) tag = 'HACKATHON 2.0';
+    calendarGrid.push({ day: i.toString(), tag, tone, muted: false });
+  }
+
+  const remainingCells = 42 - calendarGrid.length;
+  for (let i = 1; i <= remainingCells; i++) {
+    calendarGrid.push({ day: i.toString(), muted: true });
+  }
+
   return (
     <div className="min-h-dvh bg-[#090C12] text-white">
       <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#0D1119]/90 backdrop-blur">
@@ -62,15 +134,15 @@ export default function EventsPortal({ onNavigate }: Props) {
           <div className="flex items-center gap-10">
             <div className="text-3xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <div className="hidden items-center gap-7 md:flex">
-              <button onClick={() => onNavigate?.('dashboard')} className="text-sm text-white/65 hover:text-white">Dashboard</button>
-              <button onClick={() => onNavigate?.('marketplace')} className="text-sm text-white/65 hover:text-white">Marketplace</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">Events</button>
+              <button onClick={() => onNavigate?.('dashboard')} className="text-sm text-white/65 hover:text-white transition-colors">Dashboard</button>
+              <button onClick={() => onNavigate?.('marketplace')} className="text-sm text-white/65 hover:text-white transition-colors">Marketplace</button>
+              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">Events</button>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button className="text-white/70">🔔</button>
-            <button className="text-white/70">⚙</button>
-            <button className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-xs">
+            <button className="text-white/70 hover:text-white transition-colors">🔔</button>
+            <button className="text-white/70 hover:text-white transition-colors">⚙</button>
+            <button className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-xs hover:bg-white/30 transition-colors">
               👤
             </button>
           </div>
@@ -86,7 +158,7 @@ export default function EventsPortal({ onNavigate }: Props) {
               <span className="rounded-full bg-fuchsia-600 px-3 py-1 text-xs font-bold uppercase">
                 Trending Now
               </span>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs">Oct 24, 2024</span>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs">{monthStrShort} {activeDay}, {year}</span>
             </div>
             <h1 className="text-5xl font-black leading-tight md:text-6xl">
               The Electric Pulse
@@ -100,13 +172,13 @@ export default function EventsPortal({ onNavigate }: Props) {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => onNavigate?.('event-detail')}
-                className="rounded-lg bg-sky-300 px-6 py-3 font-bold text-slate-900"
+                className="rounded-lg bg-sky-300 px-6 py-3 font-bold text-slate-900 transition-colors hover:bg-sky-200"
               >
                 Secure My Slot
               </button>
               <button
                 onClick={() => onNavigate?.('event-detail')}
-                className="rounded-lg bg-white/10 px-6 py-3 font-bold text-white"
+                className="rounded-lg bg-white/10 px-6 py-3 font-bold text-white transition-colors hover:bg-white/15"
               >
                 View Details
               </button>
@@ -120,11 +192,15 @@ export default function EventsPortal({ onNavigate }: Props) {
             Trending Categories
           </h2>
           <div className="flex flex-wrap gap-3">
-            <Pill label="Tech & Innovation" icon="⚡" active />
-            <Pill label="Arts & Culture" icon="🎨" />
-            <Pill label="Sports" icon="🏋️" />
-            <Pill label="Social Mixer" icon="🍸" />
-            <Pill label="Workshop" icon="🎓" />
+            {CATEGORIES.map(category => (
+              <Pill 
+                key={category.label}
+                label={category.label} 
+                icon={category.icon} 
+                active={activeCategory === category.label} 
+                onClick={() => setActiveCategory(category.label)}
+              />
+            ))}
           </div>
         </section>
 
@@ -132,17 +208,17 @@ export default function EventsPortal({ onNavigate }: Props) {
           <div className="col-span-12 rounded-xl border border-white/10 bg-[#12161E] p-6 lg:col-span-8">
             <div className="mb-8 flex items-center justify-between">
               <div>
-                <h3 className="text-4xl font-black">October 2024</h3>
+                <h3 className="text-4xl font-black">{monthName}</h3>
                 <p className="text-sm text-white/55">12 events scheduled this month</p>
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-[#20242C] p-1.5">
-                <button className="rounded-lg px-3 py-2 hover:bg-white/10">‹</button>
-                <span className="px-3 text-xs font-bold uppercase tracking-[0.2em]">Today</span>
-                <button className="rounded-lg px-3 py-2 hover:bg-white/10">›</button>
+                <button onClick={() => changeMonth(-1)} className="rounded-lg px-3 py-2 hover:bg-white/10 transition-colors">‹</button>
+                <span className="px-3 text-xs font-bold uppercase tracking-[0.2em] cursor-pointer" onClick={() => setCurrentDate(new Date())}>Today</span>
+                <button onClick={() => changeMonth(1)} className="rounded-lg px-3 py-2 hover:bg-white/10 transition-colors">›</button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-white/10">
+            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-white/10 items-start">
               {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((d) => (
                 <div
                   key={d}
@@ -151,32 +227,18 @@ export default function EventsPortal({ onNavigate }: Props) {
                   {d}
                 </div>
               ))}
-              <CalendarCell day="28" muted />
-              <CalendarCell day="29" muted />
-              <CalendarCell day="30" muted />
-              <CalendarCell day="1" />
-              <CalendarCell day="2" />
-              <CalendarCell day="3" tag="AI SEMINAR" />
-              <CalendarCell day="4" />
-              <CalendarCell day="5" />
-              <CalendarCell day="6" />
-              <CalendarCell day="7" />
-              <CalendarCell day="8" />
-              <CalendarCell day="9" tag="JAZZ NIGHT" tone="purple" />
-              <CalendarCell day="10" />
-              <CalendarCell day="11" />
-              <CalendarCell day="12" />
-              <CalendarCell day="13" />
-              <div className="relative min-h-[110px] bg-[#1D2530] p-3 text-xs ring-2 ring-sky-300/70 ring-inset">
-                <div>14</div>
-                <div className="mt-2 rounded-md bg-sky-300 p-2 text-[10px] font-black text-slate-900">
-                  HACKATHON 2.0
-                </div>
-              </div>
-              <CalendarCell day="15" />
-              <CalendarCell day="16" />
-              <CalendarCell day="17" />
-              <CalendarCell day="18" />
+              
+              {calendarGrid.map((cell, idx) => (
+                <CalendarCell 
+                  key={`${cell.day}-${idx}`}
+                  day={cell.day}
+                  tag={cell.tag}
+                  tone={cell.tone as any}
+                  muted={cell.muted}
+                  isActive={!cell.muted && activeDay === cell.day}
+                  onClick={() => { if (!cell.muted) setActiveDay(cell.day); }}
+                />
+              ))}
             </div>
           </div>
 
@@ -189,14 +251,14 @@ export default function EventsPortal({ onNavigate }: Props) {
                     <h4 className="text-3xl font-bold">Hackathon 2.0</h4>
                     <p className="text-sm text-orange-200">Starts in 3 days</p>
                   </div>
-                  <button className="rounded-full bg-white/10 p-2">↗</button>
+                  <button className="rounded-full bg-white/10 p-2 hover:bg-white/15 transition-colors">↗</button>
                 </div>
                 <div className="space-y-2 text-sm text-white/70">
                   <p>📍 Main Campus | Hall A</p>
                   <p>⏱ 48 Hours | 10:00 AM Onwards</p>
                   <p>👥 432 Students Registered</p>
                 </div>
-                <button className="w-full rounded-lg bg-sky-300 py-3 text-base font-black uppercase tracking-[0.12em] text-slate-900">
+                <button className="w-full rounded-lg bg-sky-300 py-3 text-base font-black uppercase tracking-[0.12em] text-slate-900 transition-colors hover:bg-sky-200">
                   Quick Register
                 </button>
               </div>
@@ -210,7 +272,9 @@ export default function EventsPortal({ onNavigate }: Props) {
               <p className="mt-2 text-sm text-white/60">
                 Join the live session in Seminar Hall 3 or via the stream link below.
               </p>
-              <button className="mt-3 text-sm font-bold text-sky-300">WATCH STREAM →</button>
+              <button 
+                onClick={() => alert('Opening live stream...')}
+                className="mt-3 text-sm font-bold text-sky-300 hover:text-sky-200 transition-colors">WATCH STREAM →</button>
             </div>
 
             <div className="rounded-xl border border-white/10 bg-[#12161E] p-5">
@@ -227,7 +291,9 @@ export default function EventsPortal({ onNavigate }: Props) {
                     <div className="text-sm font-bold">Zen Yoga Morning</div>
                     <div className="text-[11px] text-white/60">07:30 AM • Student Center</div>
                   </div>
-                  <button className="text-white/45">🔖</button>
+                  <button 
+                    onClick={() => alert('Saved Zen Yoga Morning to your agenda!')}
+                    className="text-white/45 hover:text-white transition-colors">🔖</button>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="grid h-12 w-12 place-items-center rounded-lg bg-[#232831] text-center">
@@ -238,7 +304,9 @@ export default function EventsPortal({ onNavigate }: Props) {
                     <div className="text-sm font-bold">Film Noir Screening</div>
                     <div className="text-[11px] text-white/60">06:00 PM • Auditorium 2</div>
                   </div>
-                  <button className="text-white/45">🔖</button>
+                  <button 
+                    onClick={() => alert('Saved Film Noir Screening to your agenda!')}
+                    className="text-white/45 hover:text-white transition-colors">🔖</button>
                 </div>
               </div>
             </div>
@@ -246,9 +314,15 @@ export default function EventsPortal({ onNavigate }: Props) {
         </section>
       </main>
 
-      <button className="fixed bottom-8 right-8 z-40 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-400 text-4xl text-white shadow-[0_10px_28px_rgba(196,127,255,0.45)]">
+      <button 
+        onClick={() => setIsCreateModalOpen(true)}
+        className="fixed bottom-8 right-8 z-40 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-400 text-4xl text-white shadow-[0_10px_28px_rgba(196,127,255,0.45)] hover:scale-105 transition-transform">
         +
       </button>
+
+      {isCreateModalOpen && (
+        <CreateEventModal onClose={() => setIsCreateModalOpen(false)} />
+      )}
     </div>
   )
 }
