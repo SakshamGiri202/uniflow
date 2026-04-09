@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Navigate, Route, Routes } from 'react-router-dom'
 import LandingPage from './components/LandingPage.tsx'
 import Dashboard from './components/Dashboard.tsx'
@@ -14,7 +14,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/marketplace" element={<StudentMarketplace />} />
       <Route path="/events" element={<EventsPortal />} />
-      <Route path="/event-detail" element={<EventDetail onBack={() => {}} />} />
+      <Route path="/event-detail" element={<EventDetail onBack={() => { }} />} />
       <Route path="/coach" element={<Coach />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
