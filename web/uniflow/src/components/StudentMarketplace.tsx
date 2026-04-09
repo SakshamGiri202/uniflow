@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import CreateListingModal from './CreateListingModal'
 import TopNavActions from './TopNavActions'
 
@@ -181,6 +182,34 @@ export default function StudentMarketplace() {
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [priceRange, setPriceRange] = useState<[number, number]>([500, 5000]);
   const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+  const [listings, setListings] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchListings()
+  }, [])
+
+  const fetchListings = async () => {
+    const { data, error } = await supabase
+      .from('marketplace_items')
+      .select('*')
+      .order('posted_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching marketplace items:', error)
+    } else {
+      setListings(data || [])
+    }
+  }
+
+  const addListing = (item: any) => {
+    setListings((prev) => [item, ...prev])
+  }
+
+  const getListingImageUrl = (imagePath: string) => {
+    if (!imagePath) return ''
+    if (imagePath.startsWith('http')) return imagePath
+    return supabase.storage.from('marketplace-images').getPublicUrl(imagePath).data.publicUrl
+  }
 
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
@@ -311,12 +340,31 @@ export default function StudentMarketplace() {
                 tone="teal"
                 imageSrc="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=500&q=80"
               />
+              {listings.map((item) => (
+                <ProductCard
+                  key={item.id}
+                  viewLayout={viewLayout}
+                  title={item.product_name}
+                  description={item.description}
+                  price={`₹${item.price}`}
+                  seller={`${item.seller_name} · ${item.city_campus}`}
+                  action="Buy"
+                  badge={item.category}
+                  tone="teal"
+                  imageSrc={item.imageSrc || getListingImageUrl(item.image_path)}
+                />
+              ))}
             </section>
           </main>
         </div>
       </div>
 
-      {isListingModalOpen && <CreateListingModal onClose={() => setIsListingModalOpen(false)} />}
+      {isListingModalOpen && (
+        <CreateListingModal
+          onClose={() => setIsListingModalOpen(false)}
+          onItemCreated={addListing}
+        />
+      )}
     </div>
   )
 }
