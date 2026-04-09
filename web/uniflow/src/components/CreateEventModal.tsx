@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface Props {
   onClose: () => void;
@@ -6,6 +7,80 @@ interface Props {
 
 export default function CreateEventModal({ onClose }: Props) {
   const [eventType, setEventType] = useState<'Offline' | 'Online'>('Offline');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const collegeName = formData.get('college_name') as string;
+      const city = formData.get('city') as string;
+      const eventName = formData.get('event_name') as string;
+      const eventDate = formData.get('event_date') as string;
+      const registrationDeadline = formData.get('registration_deadline') as string;
+      const eventHead = formData.get('event_head') as string;
+      const contactNumber = formData.get('contact_number') as string;
+
+      let posterImagePath = null;
+
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `event-posters/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('event-posters')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          alert('Failed to upload poster image. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        posterImagePath = filePath;
+      }
+
+      const { error: insertError } = await supabase
+        .from('events')
+        .insert({
+          college_name: collegeName,
+          city: city,
+          event_name: eventName,
+          platform: eventType,
+          event_date: eventDate,
+          registration_deadline: registrationDeadline,
+          event_head: eventHead,
+          contact_number: contactNumber,
+          poster_image_path: posterImagePath,
+        });
+
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        alert('Failed to create event. Please try again.');
+      } else {
+        alert('Event posted successfully!');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
@@ -28,7 +103,7 @@ export default function CreateEventModal({ onClose }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-8">
-          <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); alert("Event posted successfully!"); onClose(); }}>
+          <form className="space-y-8" onSubmit={handleSubmit}>
             
             {/* Organizer Info */}
             <section className="space-y-4">
@@ -36,11 +111,11 @@ export default function CreateEventModal({ onClose }: Props) {
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">College / Institution Name</label>
-                  <input required placeholder="e.g. MIT, Stanford, IIT Delhi..." className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400/50 hover:bg-[#1A2029] transition-colors" />
+                  <input required name="college_name" placeholder="e.g. MIT, Stanford, IIT Delhi..." className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400/50 hover:bg-[#1A2029] transition-colors" />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">City & State</label>
-                  <input required placeholder="e.g. Boston, MA" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400/50 hover:bg-[#1A2029] transition-colors" />
+                  <input required name="city" placeholder="e.g. Boston, MA" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400/50 hover:bg-[#1A2029] transition-colors" />
                 </div>
               </div>
             </section>
@@ -51,7 +126,7 @@ export default function CreateEventModal({ onClose }: Props) {
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-semibold text-white/80">Event Name</label>
-                  <input required placeholder="e.g. Annual Tech Symposium 2024" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors" />
+                  <input required name="event_name" placeholder="e.g. Annual Tech Symposium 2024" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors" />
                 </div>
                 
                 <div>
@@ -64,12 +139,12 @@ export default function CreateEventModal({ onClose }: Props) {
 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">Date of Event</label>
-                  <input required type="date" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:hover:opacity-100" />
+                  <input required name="event_date" type="date" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:hover:opacity-100" />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">Last Day for Registration</label>
-                  <input required type="date" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:hover:opacity-100" />
+                  <input required name="registration_deadline" type="date" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-fuchsia-400 focus:outline-none focus:ring-1 focus:ring-fuchsia-400/50 hover:bg-[#1A2029] transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:hover:opacity-100" />
                 </div>
               </div>
             </section>
@@ -80,11 +155,11 @@ export default function CreateEventModal({ onClose }: Props) {
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">Event Head Name</label>
-                  <input required placeholder="First & Last Name" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/50 hover:bg-[#1A2029] transition-colors" />
+                  <input required name="event_head" placeholder="First & Last Name" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/50 hover:bg-[#1A2029] transition-colors" />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-white/80">Contact Number</label>
-                  <input required type="tel" placeholder="+91 98765 43210" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/50 hover:bg-[#1A2029] transition-colors" />
+                  <input required name="contact_number" type="tel" placeholder="+91 98765 43210" className="w-full rounded-xl border border-white/10 bg-[#161B22] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/50 hover:bg-[#1A2029] transition-colors" />
                 </div>
 
                 <div className="md:col-span-2">
@@ -99,11 +174,12 @@ export default function CreateEventModal({ onClose }: Props) {
                       <div className="flex text-sm text-white/60 justify-center font-medium">
                         <label className="relative cursor-pointer rounded-md text-orange-400 focus-within:outline-none hover:text-orange-300 transition-colors">
                           <span>Upload a file</span>
-                          <input type="file" className="sr-only" accept="image/*" />
+                          <input ref={fileInputRef} type="file" className="sr-only" accept="image/*" onChange={handleFileChange} />
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
                       <p className="text-xs text-white/40 mt-2">PNG, JPG, GIF up to 5MB</p>
+                      {selectedFile && <p className="text-xs text-orange-300 mt-2">Selected: {selectedFile.name}</p>}
                     </div>
                   </div>
                 </div>
@@ -116,14 +192,16 @@ export default function CreateEventModal({ onClose }: Props) {
                 type="button" 
                 onClick={onClose} 
                 className="rounded-xl px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10 transition-colors"
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button 
                 type="submit" 
-                className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-8 py-2.5 text-sm font-bold text-white shadow-[0_5px_20px_rgba(217,70,239,0.3)] hover:shadow-[0_5px_25px_rgba(217,70,239,0.5)] hover:scale-105 transition-all"
+                className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-8 py-2.5 text-sm font-bold text-white shadow-[0_5px_20px_rgba(217,70,239,0.3)] hover:shadow-[0_5px_25px_rgba(217,70,239,0.5)] hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
               >
-                Post Event
+                {isSubmitting ? 'Posting...' : 'Post Event'}
               </button>
             </div>
 

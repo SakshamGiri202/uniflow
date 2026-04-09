@@ -1,4 +1,5 @@
 
+import { useNavigate } from 'react-router-dom';
 
 type StatPillProps = {
   title: string
@@ -78,7 +79,9 @@ function FeatureCard({
   )
 }
 
-export default function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
+export default function LandingPage() {
+  const navigate = useNavigate();
+  const onGetStarted = () => navigate('/dashboard');
 
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">

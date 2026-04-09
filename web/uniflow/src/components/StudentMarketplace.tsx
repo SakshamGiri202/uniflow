@@ -1,4 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import CreateListingModal from './CreateListingModal'
+import TopNavActions from './TopNavActions'
 
 type Category = {
   name: string
@@ -33,6 +37,7 @@ type CategoryPanelProps = {
   onCategoryChange: (cat: string) => void
   priceRange: [number, number]
   onPriceChange: (val: [number, number]) => void
+  onOpenSellModal: () => void
 }
 
 function ProductCard({
@@ -105,7 +110,7 @@ function ProductCard({
   )
 }
 
-function CategoryPanel({ activeCategory, onCategoryChange, priceRange, onPriceChange }: CategoryPanelProps) {
+function CategoryPanel({ activeCategory, onCategoryChange, priceRange, onPriceChange, onOpenSellModal }: CategoryPanelProps) {
   const minP = 0
   const maxP = 10000
   const leftPercent = ((priceRange[0] - minP) / (maxP - minP)) * 100
@@ -172,7 +177,7 @@ function CategoryPanel({ activeCategory, onCategoryChange, priceRange, onPriceCh
         <h5 className="relative z-10 text-lg font-semibold text-white">Want to sell?</h5>
         <p className="relative z-10 mt-2 text-sm text-white/65">Turn your old gear into cash for next semester's textbooks.</p>
         <button 
-          onClick={() => alert('Opening listing draft...')}
+          onClick={onOpenSellModal}
           className="relative z-10 mt-4 w-full rounded-xl bg-sky-300/90 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-sky-300 transition-colors">
           Sell an Item
         </button>
@@ -181,6 +186,7 @@ function CategoryPanel({ activeCategory, onCategoryChange, priceRange, onPriceCh
   )
 }
 
+<<<<<<< HEAD
 interface Props {
   onNavigate?: (page: string, params?: { sellerName: string; productTitle: string }) => void;
 }
@@ -216,6 +222,41 @@ export default function StudentMarketplace({ onNavigate }: Props) {
     setSelectedProduct(product);
     setShowDetailsModal(true);
   };
+=======
+export default function StudentMarketplace() {
+  const [viewLayout, setViewLayout] = useState<'grid' | 'list'>('grid');
+  const [activeCategory, setActiveCategory] = useState('All Items');
+  const [priceRange, setPriceRange] = useState<[number, number]>([500, 5000]);
+  const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+  const [listings, setListings] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchListings()
+  }, [])
+
+  const fetchListings = async () => {
+    const { data, error } = await supabase
+      .from('marketplace_items')
+      .select('*')
+      .order('posted_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching marketplace items:', error)
+    } else {
+      setListings(data || [])
+    }
+  }
+
+  const addListing = (item: any) => {
+    setListings((prev) => [item, ...prev])
+  }
+
+  const getListingImageUrl = (imagePath: string) => {
+    if (!imagePath) return ''
+    if (imagePath.startsWith('http')) return imagePath
+    return supabase.storage.from('marketplace-images').getPublicUrl(imagePath).data.publicUrl
+  }
+>>>>>>> origin/dev-c
 
   return (
     <div className="min-h-dvh bg-[#070A10] text-white">
@@ -223,23 +264,19 @@ export default function StudentMarketplace({ onNavigate }: Props) {
         <header className="mb-7 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#0D1119]/90 px-6 py-4">
           <div className="flex items-center gap-8">
             <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
-            <nav className="hidden items-center gap-6 md:flex relative">
-              <button
-                onClick={() => onNavigate?.('dashboard')}
-                className="text-sm text-white/70 hover:text-white transition-colors"
-              >
+            <nav className="hidden items-center gap-6 md:flex">
+              <Link to="/dashboard" className="text-sm text-white/70 hover:text-white">
                 Dashboard
-              </button>
-              <button
-                onClick={() => onNavigate?.('marketplace')}
-                className="relative text-sm font-semibold text-sky-300 transition-colors">
+              </Link>
+              <Link to="/marketplace" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
                 Marketplace
-                <div className="absolute -bottom-[23px] left-0 h-[2px] w-full bg-sky-300" />
-              </button>
-              <button
-                onClick={() => onNavigate?.('events')}
-                className="text-sm text-white/70 hover:text-white transition-colors">Events</button>
-
+              </Link>
+              <Link to="/events" className="text-sm text-white/70 hover:text-white">
+                Events
+              </Link>
+              <Link to="/coach" className="text-sm text-white/70 hover:text-white">
+                Coach
+              </Link>
             </nav>
           </div>
 
@@ -248,24 +285,7 @@ export default function StudentMarketplace({ onNavigate }: Props) {
               className="w-72 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/35 focus:border-sky-300/50 focus:outline-none focus:ring-1 focus:ring-sky-300/50 transition-all"
               placeholder="Search Marketplace..."
             />
-            <button 
-              onClick={() => alert('Viewing Notifications')}
-              className="rounded-full bg-white/5 hover:bg-white/10 transition-colors p-2 text-white/75 flex items-center justify-center h-9 w-9">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </button>
-            <button 
-              onClick={() => alert('Opening Preferences')}
-              className="rounded-full bg-white/5 hover:bg-white/10 transition-colors p-2 text-white/75 flex items-center justify-center h-9 w-9">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            <div className="h-9 w-9 overflow-hidden rounded-full border border-white/10 shrink-0 ml-1 cursor-pointer" onClick={() => alert('Viewing Profile')}>
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
+            <TopNavActions />
           </div>
         </header>
 
@@ -275,6 +295,7 @@ export default function StudentMarketplace({ onNavigate }: Props) {
             onCategoryChange={setActiveCategory}
             priceRange={priceRange}
             onPriceChange={setPriceRange}
+            onOpenSellModal={() => setIsListingModalOpen(true)}
           />
 
           <main>
@@ -384,11 +405,26 @@ export default function StudentMarketplace({ onNavigate }: Props) {
                 tone="teal"
                 imageSrc="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=500&q=80"
               />
+              {listings.map((item) => (
+                <ProductCard
+                  key={item.id}
+                  viewLayout={viewLayout}
+                  title={item.product_name}
+                  description={item.description}
+                  price={`₹${item.price}`}
+                  seller={`${item.seller_name} · ${item.city_campus}`}
+                  action="Buy"
+                  badge={item.category}
+                  tone="teal"
+                  imageSrc={item.imageSrc || getListingImageUrl(item.image_path)}
+                />
+              ))}
             </section>
           </main>
         </div>
       </div>
 
+<<<<<<< HEAD
       {showDetailsModal && selectedProduct && !showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowDetailsModal(false)} />
@@ -542,6 +578,13 @@ export default function StudentMarketplace({ onNavigate }: Props) {
             </div>
           </div>
         </div>
+=======
+      {isListingModalOpen && (
+        <CreateListingModal
+          onClose={() => setIsListingModalOpen(false)}
+          onItemCreated={addListing}
+        />
+>>>>>>> origin/dev-c
       )}
     </div>
   )

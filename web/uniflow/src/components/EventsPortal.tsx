@@ -1,5 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import CreateEventModal from './CreateEventModal'
+import EventRegistrationModal from './EventRegistrationModal'
+import EventRegistrations from './EventRegistrations'
+import TopNavActions from './TopNavActions'
+import { supabase } from '../lib/supabase'
 
 function Pill({
   label,
@@ -72,10 +77,6 @@ function CalendarCell({
   )
 }
 
-interface Props {
-  onNavigate?: (page: string) => void
-}
-
 const CATEGORIES = [
   { label: 'Tech & Innovation', icon: '⚡' },
   { label: 'Arts & Culture', icon: '🎨' },
@@ -84,40 +85,63 @@ const CATEGORIES = [
   { label: 'Workshop', icon: '🎓' },
 ];
 
-export default function EventsPortal({ onNavigate }: Props) {
+export default function EventsPortal() {
+  const navigate = useNavigate();
+
   const [activeCategory, setActiveCategory] = useState("Tech & Innovation");
   const [activeDay, setActiveDay] = useState("14");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [isViewingRegistrations, setIsViewingRegistrations] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
 
-  const mockEventsData: Record<string, any> = {
-    "14": {
-      title: "Hackathon 2.0",
-      time: "Starts in 3 days",
-      location: "📍 Main Campus | Hall A",
-      duration: "⏱ 48 Hours | 10:00 AM Onwards",
-      attendees: "👥 432 Students Registered",
-      gradient: "from-violet-500/60 via-orange-300/50 to-pink-500/40"
-    },
-    "3": {
-      title: "AI SEMINAR",
-      time: "Starts tomorrow",
-      location: "📍 CS Dept | Seminar Hall 1",
-      duration: "⏱ 2 Hours | 02:00 PM",
-      attendees: "👥 120 Students Expected",
-      gradient: "from-sky-500/60 via-indigo-400/50 to-blue-500/40"
-    },
-    "9": {
-      title: "JAZZ NIGHT",
-      time: "Next week",
-      location: "📍 Student Center | Open Air Theatre",
-      duration: "⏱ 4 Hours | 08:00 PM Onwards",
-      attendees: "👥 210 Students RSVP'd",
-      gradient: "from-purple-500/60 via-fuchsia-400/50 to-pink-500/40"
+  useEffect(() => {
+    fetchEvents();
+  }, [currentDate]);
+
+  // If viewing registrations, show the registrations component instead
+  if (isViewingRegistrations) {
+    const activeEvent = events.find(event => {
+      const eventDate = new Date(event.event_date);
+      const month = currentDate.getMonth();
+      const year = currentDate.getFullYear();
+      return eventDate.getDate() === parseInt(activeDay) && eventDate.getMonth() === month && eventDate.getFullYear() === year;
+    });
+
+    if (activeEvent) {
+      return (
+        <EventRegistrations 
+          eventId={activeEvent.id}
+          eventName={activeEvent.event_name}
+          onBack={() => setIsViewingRegistrations(false)}
+        />
+      );
+    }
+  }
+
+  const fetchEvents = async () => {
+    try {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const startOfMonth = new Date(year, month, 1).toISOString().split('T')[0];
+      const endOfMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
+
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .gte('event_date', startOfMonth)
+        .lte('event_date', endOfMonth);
+
+      if (error) {
+        console.error('Error fetching events:', error);
+      } else {
+        setEvents(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
-
-  const activeEvent = mockEventsData[activeDay];
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -143,11 +167,16 @@ export default function EventsPortal({ onNavigate }: Props) {
   }
 
   for (let i = 1; i <= daysInMonth; i++) {
+    const eventForDay = events.find(event => {
+      const eventDate = new Date(event.event_date);
+      return eventDate.getDate() === i && eventDate.getMonth() === month && eventDate.getFullYear() === year;
+    });
     let tag = undefined;
     let tone = undefined;
-    if (i === 3) tag = 'AI SEMINAR';
-    if (i === 9) { tag = 'JAZZ NIGHT'; tone = 'purple'; }
-    if (i === 14) tag = 'HACKATHON 2.0';
+    if (eventForDay) {
+      tag = eventForDay.event_name.toUpperCase();
+      tone = 'purple'; // You can customize tone based on platform or category
+    }
     calendarGrid.push({ day: i.toString(), tag, tone, muted: false });
   }
 
@@ -156,6 +185,11 @@ export default function EventsPortal({ onNavigate }: Props) {
     calendarGrid.push({ day: i.toString(), muted: true });
   }
 
+  const activeEvent = events.find(event => {
+    const eventDate = new Date(event.event_date);
+    return eventDate.getDate() === parseInt(activeDay) && eventDate.getMonth() === month && eventDate.getFullYear() === year;
+  });
+
   return (
     <div className="min-h-dvh bg-[#090C12] text-white">
       <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#0D1119]/90 backdrop-blur">
@@ -163,18 +197,21 @@ export default function EventsPortal({ onNavigate }: Props) {
           <div className="flex items-center gap-10">
             <div className="text-3xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <div className="hidden items-center gap-7 md:flex">
-              <button onClick={() => onNavigate?.('dashboard')} className="text-sm text-white/65 hover:text-white transition-colors">Dashboard</button>
-              <button onClick={() => onNavigate?.('marketplace')} className="text-sm text-white/65 hover:text-white transition-colors">Marketplace</button>
-              <button className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">Events</button>
+              <Link to="/dashboard" className="text-sm text-white/65 hover:text-white transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/marketplace" className="text-sm text-white/65 hover:text-white transition-colors">
+                Marketplace
+              </Link>
+              <Link to="/events" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">
+                Events
+              </Link>
+              <Link to="/coach" className="text-sm text-white/65 hover:text-white transition-colors">
+                Coach
+              </Link>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="text-white/70 hover:text-white transition-colors">🔔</button>
-            <button className="text-white/70 hover:text-white transition-colors">⚙</button>
-            <button className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-xs hover:bg-white/30 transition-colors">
-              👤
-            </button>
-          </div>
+          <TopNavActions />
         </div>
       </nav>
 
@@ -200,13 +237,13 @@ export default function EventsPortal({ onNavigate }: Props) {
             </p>
             <div className="mt-6 flex gap-3">
               <button
-                onClick={() => onNavigate?.('event-detail')}
+                onClick={() => navigate('/event-detail')}
                 className="rounded-lg bg-sky-300 px-6 py-3 font-bold text-slate-900 transition-colors hover:bg-sky-200"
               >
                 Secure My Slot
               </button>
               <button
-                onClick={() => onNavigate?.('event-detail')}
+                onClick={() => navigate('/event-detail')}
                 className="rounded-lg bg-white/10 px-6 py-3 font-bold text-white transition-colors hover:bg-white/15"
               >
                 View Details
@@ -275,23 +312,33 @@ export default function EventsPortal({ onNavigate }: Props) {
             
             {activeEvent ? (
               <div className="overflow-hidden rounded-xl border border-white/10 bg-[#171B23]">
-                <div className={`h-36 bg-gradient-to-br ${activeEvent.gradient}`} />
+                <div className={`h-36 bg-gradient-to-br from-violet-500/60 via-orange-300/50 to-pink-500/40`} />
                 <div className="space-y-4 p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="text-3xl font-bold">{activeEvent.title}</h4>
-                      <p className="text-sm text-orange-200">{activeEvent.time}</p>
+                      <h4 className="text-3xl font-bold">{activeEvent.event_name}</h4>
+                      <p className="text-sm text-orange-200">{activeEvent.platform} Event</p>
                     </div>
                     <button className="rounded-full bg-white/10 p-2 hover:bg-white/15 transition-colors">↗</button>
                   </div>
                   <div className="space-y-2 text-sm text-white/70">
-                    <p>{activeEvent.location}</p>
-                    <p>{activeEvent.duration}</p>
-                    <p>{activeEvent.attendees}</p>
+                    <p>📍 {activeEvent.college_name}, {activeEvent.city}</p>
+                    <p>📅 {new Date(activeEvent.event_date).toLocaleDateString()}</p>
+                    <p>👤 {activeEvent.event_head}</p>
+                    <p>📞 {activeEvent.contact_number}</p>
                   </div>
-                  <button className="w-full rounded-lg bg-sky-300 py-3 text-base font-black uppercase tracking-[0.12em] text-slate-900 transition-colors hover:bg-sky-200">
-                    Quick Register
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => setIsRegistrationModalOpen(true)}
+                      className="w-full rounded-lg bg-sky-300 py-3 text-sm font-black uppercase tracking-[0.12em] text-slate-900 transition-colors hover:bg-sky-200">
+                      Register Now
+                    </button>
+                    <button 
+                      onClick={() => setIsViewingRegistrations(true)}
+                      className="w-full rounded-lg bg-orange-500/20 border border-orange-500/30 py-3 text-sm font-bold uppercase tracking-[0.12em] text-orange-300 transition-colors hover:bg-orange-500/30">
+                      👥 View
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -323,17 +370,40 @@ export default function EventsPortal({ onNavigate }: Props) {
               </button>
             </div>
 
-            <div className="rounded-xl border-l-4 border-orange-300 bg-[#1A1F27] p-5">
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-300">
-                Live Now
+            {/* Live Now Ongoing Events - Scrollable Single Card */}
+            <div className="rounded-xl border border-orange-500/20 bg-[#1A1F27] overflow-hidden">
+              <div className="border-b border-orange-500/10 bg-orange-500/5 px-3 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-300">Live Now</span>
+                </div>
               </div>
-              <h5 className="text-2xl font-bold">Startup Founders Q&A</h5>
-              <p className="mt-2 text-sm text-white/60">
-                Join the live session in Seminar Hall 3 or via the stream link below.
-              </p>
-              <button 
-                onClick={() => alert('Opening live stream...')}
-                className="mt-3 text-sm font-bold text-sky-300 hover:text-sky-200 transition-colors">WATCH STREAM →</button>
+              
+              <div className="max-h-[280px] overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                {[
+                  { title: 'Startup Founders Q&A', venue: 'Seminar Hall 3', description: 'Interactive session with campus founders.', time: 'Started 20m ago' },
+                  { title: 'Graphic Design Workshop', venue: 'Lab 4 - CS Block', description: 'Advanced UI/UX walkthrough.', time: 'Started 1h ago' },
+                  { title: 'AI Ethics Debate', venue: 'Main Auditorium', description: 'Faculty-led discussion on AI future.', time: 'Started 5m ago' }
+                ].map((event, i) => (
+                  <div key={i} className="rounded-lg bg-white/5 p-4 hover:bg-white/10 transition-colors border border-white/5 group">
+                    <div className="flex justify-between items-start mb-1">
+                      <h5 className="font-bold text-lg group-hover:text-orange-200 transition-colors">{event.title}</h5>
+                      <span className="text-[9px] font-medium text-white/30 whitespace-nowrap">{event.time}</span>
+                    </div>
+                    <p className="text-xs text-white/60 leading-relaxed mb-3">
+                      In <span className="text-orange-200 font-bold">{event.venue}</span> • {event.description}
+                    </p>
+                    <button 
+                      onClick={() => alert(`Opening stream for ${event.title}...`)}
+                      className="text-[10px] font-black uppercase tracking-widest text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1">
+                      Join Session <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="rounded-xl border border-white/10 bg-[#12161E] p-5">
@@ -380,7 +450,16 @@ export default function EventsPortal({ onNavigate }: Props) {
       </button>
 
       {isCreateModalOpen && (
-        <CreateEventModal onClose={() => setIsCreateModalOpen(false)} />
+        <CreateEventModal onClose={() => { setIsCreateModalOpen(false); fetchEvents(); }} />
+      )}
+
+      {isRegistrationModalOpen && activeEvent && (
+        <EventRegistrationModal 
+          eventId={activeEvent.id}
+          eventName={activeEvent.event_name}
+          onClose={() => setIsRegistrationModalOpen(false)}
+          onSuccess={() => fetchEvents()}
+        />
       )}
     </div>
   )
