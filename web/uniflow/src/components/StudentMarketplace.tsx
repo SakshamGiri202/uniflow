@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import CreateListingModal from './CreateListingModal'
 import TopNavActions from './TopNavActions'
+import AISearchBar from './AISearchBar'
 
 type Category = {
   name: string
@@ -233,11 +234,10 @@ export default function StudentMarketplace() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              className="w-72 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/35 focus:border-sky-300/50 focus:outline-none focus:ring-1 focus:ring-sky-300/50 transition-all"
-              placeholder="Search Marketplace..."
-            />
+          <div className="flex items-center gap-6">
+            <div className="w-72">
+              <AISearchBar placeholder="Search Marketplace..." />
+            </div>
             <TopNavActions />
           </div>
         </header>

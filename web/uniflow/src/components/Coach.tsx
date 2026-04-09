@@ -2,6 +2,8 @@ import type { FormEvent } from 'react'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import TopNavActions from './TopNavActions'
+import AISearchBar from './AISearchBar'
 
 type CoachCardProps = {
   coach_name: string
@@ -172,19 +174,26 @@ export default function Coach() {
           <div className="flex items-center gap-8">
             <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
             <nav className="hidden items-center gap-6 md:flex">
-              <Link to="/dashboard" className="text-sm text-white/70 hover:text-white">
+              <Link to="/dashboard" className="text-sm text-white/70 hover:text-white transition-colors">
                 Dashboard
               </Link>
-              <Link to="/marketplace" className="text-sm text-white/70 hover:text-white">
+              <Link to="/marketplace" className="text-sm text-white/70 hover:text-white transition-colors">
                 Marketplace
               </Link>
-              <Link to="/events" className="text-sm text-white/70 hover:text-white">
+              <Link to="/events" className="text-sm text-white/70 hover:text-white transition-colors">
                 Events
               </Link>
-              <Link to="/coach" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300">
+              <Link to="/coach" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">
                 Coach
               </Link>
             </nav>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="w-72">
+              <AISearchBar placeholder="Search Coaches..." />
+            </div>
+            <TopNavActions />
           </div>
         </div>
       </header>

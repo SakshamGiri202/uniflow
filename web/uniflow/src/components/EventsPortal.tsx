@@ -4,6 +4,7 @@ import CreateEventModal from './CreateEventModal'
 import EventRegistrationModal from './EventRegistrationModal'
 import EventRegistrations from './EventRegistrations'
 import TopNavActions from './TopNavActions'
+import AISearchBar from './AISearchBar'
 import { supabase } from '../lib/supabase'
 
 function Pill({
@@ -96,6 +97,9 @@ export default function EventsPortal() {
   const [isViewingRegistrations, setIsViewingRegistrations] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
 
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
   useEffect(() => {
     fetchEvents();
   }, [currentDate]);
@@ -122,8 +126,6 @@ export default function EventsPortal() {
 
   const fetchEvents = async () => {
     try {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
       const startOfMonth = new Date(year, month, 1).toISOString().split('T')[0];
       const endOfMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
@@ -143,8 +145,6 @@ export default function EventsPortal() {
     }
   };
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
 
   const changeMonth = (offset: number) => {
     const newDate = new Date(currentDate);
@@ -192,28 +192,34 @@ export default function EventsPortal() {
 
   return (
     <div className="min-h-dvh bg-[#090C12] text-white">
-      <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#0D1119]/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6">
-          <div className="flex items-center gap-10">
-            <div className="text-3xl font-black italic tracking-tight text-sky-300">UniFlow</div>
-            <div className="hidden items-center gap-7 md:flex">
-              <Link to="/dashboard" className="text-sm text-white/65 hover:text-white transition-colors">
+      <div className="mx-auto max-w-[1440px] px-6 py-5">
+        <header className="mb-7 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#0D1119]/90 px-6 py-4">
+          <div className="flex items-center gap-8">
+            <div className="text-4xl font-black italic tracking-tight text-sky-300">UniFlow</div>
+            <nav className="hidden items-center gap-6 md:flex">
+              <Link to="/dashboard" className="text-sm text-white/70 hover:text-white">
                 Dashboard
               </Link>
-              <Link to="/marketplace" className="text-sm text-white/65 hover:text-white transition-colors">
+              <Link to="/marketplace" className="text-sm text-white/70 hover:text-white">
                 Marketplace
               </Link>
               <Link to="/events" className="border-b-2 border-sky-300 pb-1 text-sm font-semibold text-sky-300 transition-colors">
                 Events
               </Link>
-              <Link to="/coach" className="text-sm text-white/65 hover:text-white transition-colors">
+              <Link to="/coach" className="text-sm text-white/70 hover:text-white">
                 Coach
               </Link>
-            </div>
+            </nav>
           </div>
-          <TopNavActions />
-        </div>
-      </nav>
+
+          <div className="flex items-center gap-6">
+            <div className="w-72">
+              <AISearchBar placeholder="Search Events..." />
+            </div>
+            <TopNavActions />
+          </div>
+        </header>
+      </div>
 
       <main className="mx-auto max-w-[1440px] space-y-10 px-6 py-8">
         <section className="relative flex min-h-[350px] md:min-h-[400px] flex-col justify-end overflow-hidden rounded-xl border border-white/10">
