@@ -261,9 +261,9 @@ export default function Coach() {
                 <textarea
                   value={topicDescription}
                   onChange={(e) => setTopicDescription(e.target.value)}
-                  placeholder="Briefly describe what students will learn in this coaching session."
+                  placeholder="Briefly describe what you'll cover..."
                   rows={3}
-                  className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
+                  className="w-full resize-none rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
                 />
               </label>
 
@@ -272,7 +272,7 @@ export default function Coach() {
                 <input
                   value={coachName}
                   onChange={(e) => setCoachName(e.target.value)}
-                  placeholder="e.g. Alex Johnson"
+                  placeholder="Your Name"
                   className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
                 />
               </label>
@@ -288,7 +288,7 @@ export default function Coach() {
               </label>
 
               <label className="rounded-xl bg-white/5 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Time</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Schedule Time</p>
                 <input
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
@@ -297,44 +297,39 @@ export default function Coach() {
                 />
               </label>
 
-              <label className="rounded-xl bg-white/5 p-3 md:col-span-2">
+              <label className="rounded-xl bg-white/5 p-3">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Venue</p>
                 <input
                   value={venue}
                   onChange={(e) => setVenue(e.target.value)}
-                  placeholder="e.g. Seminar Hall B"
+                  placeholder="e.g. Seminar Hall"
                   className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none focus:border-sky-300/50"
                 />
               </label>
 
-              <label className="rounded-xl bg-white/5 p-3 md:col-span-2">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Certificate (Image) - Optional</p>
+              <div className="md:col-span-2 rounded-xl bg-white/5 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Certification</p>
                 <input
                   type="file"
-                  accept="image/*"
                   onChange={(e) => setCertificate(e.target.files?.[0] || null)}
-                  className="w-full rounded-lg border border-white/10 bg-[#0B111A] px-3 py-2 text-sm text-white outline-none focus:border-sky-300/50"
+                  className="w-full text-sm text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-sky-400/20 file:text-sky-300 hover:file:bg-sky-400/30"
                 />
-              </label>
-
-              <div className="md:col-span-2">
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-gradient-to-r from-sky-300 to-cyan-400 py-3 text-base font-semibold text-slate-950 shadow-[0_10px_24px_rgba(56,189,248,0.25)] hover:brightness-105"
-                >
-                  Submit
-                </button>
               </div>
+
+              <button
+                type="submit"
+                className="mt-4 md:col-span-2 rounded-xl bg-sky-300 py-4 text-sm font-bold uppercase tracking-[0.2em] text-slate-950 shadow-lg shadow-sky-500/20"
+              >
+                Apply for Coaching
+              </button>
             </form>
           </section>
         ) : null}
 
         <section className="mt-12">
-          <div className="mb-5 flex items-end justify-between">
-            <div>
-              <h2 className="text-5xl font-semibold tracking-tight">Available Coaches</h2>
-              <p className="mt-1 text-xl text-white/50">Coaches who have submitted their profiles</p>
-            </div>
+          <div className="mb-8">
+            <h2 className="text-5xl font-semibold tracking-tight">Peer Coaching Sessions</h2>
+            <p className="mt-1 text-xl text-white/50">Live knowledge sharing from fellow students</p>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-3">
