@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const ICONS: Record<string, string> = {
   event: '📅',
@@ -7,15 +7,29 @@ const ICONS: Record<string, string> = {
   system: '⚙️',
 };
 
-const notifications = [
-  { title: "Hackathon 2.0 Tomorrow!", description: "Your registered event starts in 24 hours. Don't miss it!", time: "2m ago", type: "event", unread: true },
-  { title: "Session Booking Confirmed", description: "Your 1-on-1 mentorship with Priya S. is set for 4 PM.", time: "1h ago", type: "session", unread: true },
-  { title: "Registration Closing Soon", description: "Cyber Security Workshop closes in less than 24 hours.", time: "2h ago", type: "event", unread: false },
-  { title: "New Item in Wishlist", description: "iPad Air M1 matching your search was just posted.", time: "3h ago", type: "market", unread: false },
-  { title: "Document Reminder", description: "Submit your verification documents to unlock full access.", time: "1d ago", type: "system", unread: false },
+const initialNotifications = [
+  { id: 1, title: "Hackathon 2.0 Tomorrow!", description: "Your registered event starts in 24 hours. Don't miss it!", time: "2m ago", type: "event", unread: true },
+  { id: 2, title: "Session Booking Confirmed", description: "Your 1-on-1 mentorship with Priya S. is set for 4 PM.", time: "1h ago", type: "session", unread: true },
+  { id: 3, title: "Registration Closing Soon", description: "Cyber Security Workshop closes in less than 24 hours.", time: "2h ago", type: "event", unread: false },
+  { id: 4, title: "New Item in Wishlist", description: "iPad Air M1 matching your search was just posted.", time: "3h ago", type: "market", unread: false },
+  { id: 5, title: "Document Reminder", description: "Submit your verification documents to unlock full access.", time: "1d ago", type: "system", unread: false },
 ];
 
 export default function NotificationsPanel({ onClose }: { onClose: () => void }) {
+  const [notifications, setNotifications] = useState(initialNotifications);
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === id ? { ...n, unread: false } : n))
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+  };
+
+  const unreadCount = notifications.filter(n => n.unread).length;
+
   return (
     <>
       <div
@@ -31,7 +45,11 @@ export default function NotificationsPanel({ onClose }: { onClose: () => void })
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#0D1119] px-6 py-5">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-white">Notifications</h2>
-            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-black text-white">2</span>
+            {unreadCount > 0 && (
+              <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-black text-white">
+                {unreadCount}
+              </span>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -45,15 +63,16 @@ export default function NotificationsPanel({ onClose }: { onClose: () => void })
 
         {/* List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {notifications.map((n, i) => (
+          {notifications.map((n) => (
             <div
-              key={i}
+              key={n.id}
+              onClick={() => markAsRead(n.id)}
               className={`relative rounded-xl border p-4 cursor-pointer transition-colors group ${
                 n.unread ? 'border-sky-500/20 bg-sky-500/5 hover:bg-sky-500/10' : 'border-white/5 bg-[#12161E] hover:border-white/15'
               }`}
             >
               {n.unread && (
-                <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-sky-400" />
+                <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
               )}
               <div className="flex gap-3">
                 <span className="text-xl shrink-0 mt-0.5">{ICONS[n.type]}</span>
@@ -69,7 +88,11 @@ export default function NotificationsPanel({ onClose }: { onClose: () => void })
 
         {/* Footer */}
         <div className="shrink-0 border-t border-white/10 p-4">
-          <button className="w-full rounded-xl bg-white/5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+          <button 
+            onClick={markAllAsRead}
+            disabled={unreadCount === 0}
+            className="w-full rounded-xl bg-white/5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50 disabled:pointer-events-none"
+          >
             Mark all as read
           </button>
         </div>

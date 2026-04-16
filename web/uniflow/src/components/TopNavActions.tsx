@@ -6,6 +6,7 @@ import ProfilePanel from './ProfilePanel';
 
 export default function TopNavActions() {
   const [activePanel, setActivePanel] = useState<'notifications' | 'settings' | 'profile' | null>(null);
+  const [hasUnread, setHasUnread] = useState(true);
 
   const closePanel = () => setActivePanel(null);
 
@@ -22,14 +23,19 @@ export default function TopNavActions() {
       {/* Notifications */}
       <button
         id="nav-notifications-btn"
-        onClick={() => setActivePanel(activePanel === 'notifications' ? null : 'notifications')}
+        onClick={() => {
+          if (activePanel !== 'notifications') setHasUnread(false);
+          setActivePanel(activePanel === 'notifications' ? null : 'notifications');
+        }}
         className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white/75 hover:bg-white/15 hover:text-white transition-colors group"
       >
         {/* Unread dot */}
-        <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
-        </span>
+        {hasUnread && (
+          <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+          </span>
+        )}
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>

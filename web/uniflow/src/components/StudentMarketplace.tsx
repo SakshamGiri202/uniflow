@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import CreateListingModal from './CreateListingModal'
 import TopNavActions from './TopNavActions'
 import AISearchBar from './AISearchBar'
+import ChatPopup from './ChatPopup'
+import ProductDetailsModal from './ProductDetailsModal'
 
 type Category = {
   name: string
@@ -20,6 +22,8 @@ type ProductCardProps = {
   tone?: 'teal' | 'blue' | 'slate'
   imageSrc?: string
   viewLayout?: 'grid' | 'list'
+  onChatClick?: (sellerName: string) => void
+  onDetailsClick?: (product: any) => void
 }
 
 const categories = [
@@ -48,6 +52,8 @@ function ProductCard({
   tone = 'slate',
   imageSrc,
   viewLayout = 'grid',
+  onChatClick,
+  onDetailsClick,
 }: ProductCardProps) {
   const previewTone =
     tone === 'teal'
@@ -82,12 +88,12 @@ function ProductCard({
 
         <div className={`mt-4 flex items-center gap-2 ${viewLayout === 'list' ? 'sm:mt-6 sm:justify-end sm:max-w-md' : ''}`}>
           <button 
-            onClick={() => alert(`Opening Chat with ${seller.split('·')[0].trim()}`)}
+            onClick={() => onChatClick ? onChatClick(seller.split('·')[0].trim()) : alert(`Opening Chat with ${seller.split('·')[0].trim()}`)}
             className="flex-1 rounded-lg bg-white/10 px-3 py-2 text-xs xl:text-sm font-semibold text-white hover:bg-white/15 transition-colors shrink-0 whitespace-nowrap">
             💬 Chat
           </button>
           <button 
-            onClick={() => alert(`Viewing details for ${title}`)}
+            onClick={() => onDetailsClick ? onDetailsClick({ title, description, price, seller, badge, imageSrc }) : alert(`Viewing details for ${title}`)}
             className="flex-1 rounded-lg bg-white/10 px-3 py-2 text-xs xl:text-sm font-semibold text-white hover:bg-white/15 transition-colors shrink-0 whitespace-nowrap">
             Details
           </button>
@@ -184,6 +190,8 @@ export default function StudentMarketplace() {
   const [priceRange, setPriceRange] = useState<[number, number]>([500, 5000]);
   const [isListingModalOpen, setIsListingModalOpen] = useState(false);
   const [listings, setListings] = useState<any[]>([]);
+  const [chatRecipient, setChatRecipient] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
   useEffect(() => {
     fetchListings()
@@ -277,6 +285,8 @@ export default function StudentMarketplace() {
 
             <section className={viewLayout === 'grid' ? "grid gap-5 md:grid-cols-2 xl:grid-cols-3" : "flex flex-col gap-5"}>
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="Engineering Graphics Kit"
                 description="Complete set for Semester 1. Includes draftsman, A3 board, and sheets."
@@ -288,6 +298,8 @@ export default function StudentMarketplace() {
                 imageSrc="https://images.unsplash.com/photo-1541580628362-e6bb1f912e52?w=500&q=80"
               />
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="Hero Cycle"
                 description="Hero Sprint Pro. Dual disc brakes, 21-speed gears, perfect for campus rides."
@@ -299,6 +311,8 @@ export default function StudentMarketplace() {
                 imageSrc="https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500&q=80"
               />
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="TechRefresh Bundle"
                 description="Upgrade your setup with pre-loved campus electronics. Monitor, keyboard & mouse."
@@ -310,6 +324,8 @@ export default function StudentMarketplace() {
                 imageSrc="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500&q=80"
               />
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="iPad Air (M1) + Pencil"
                 description="4 Offers Pending... Barely used, pristine condition. Battery health 98%."
@@ -321,6 +337,8 @@ export default function StudentMarketplace() {
                 imageSrc="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80"
               />
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="Semester 4 IT Books"
                 description="Complete set of 6 books for IT syllabus."
@@ -331,6 +349,8 @@ export default function StudentMarketplace() {
                 imageSrc="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&q=80"
               />
               <ProductCard
+                onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                 viewLayout={viewLayout}
                 title="Lab Coat (Size M)"
                 description="Only used for Chemistry labs. Recently washed."
@@ -343,6 +363,8 @@ export default function StudentMarketplace() {
               {listings.map((item) => (
                 <ProductCard
                   key={item.id}
+                  onChatClick={(name) => setChatRecipient(name)}
+                onDetailsClick={(p) => setSelectedProduct(p)}
                   viewLayout={viewLayout}
                   title={item.product_name}
                   description={item.description}
@@ -363,6 +385,23 @@ export default function StudentMarketplace() {
         <CreateListingModal
           onClose={() => setIsListingModalOpen(false)}
           onItemCreated={addListing}
+        />
+      )}
+
+      {chatRecipient && (
+        <ChatPopup
+          isOpen={!!chatRecipient}
+          onClose={() => setChatRecipient(null)}
+          recipientName={chatRecipient}
+        />
+      )}
+
+      {selectedProduct && (
+        <ProductDetailsModal
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          product={selectedProduct}
+          onChat={(name) => setChatRecipient(name)}
         />
       )}
     </div>
